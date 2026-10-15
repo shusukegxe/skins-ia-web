@@ -1,8 +1,8 @@
-name: Deploy a GitHub Pages
+name: Deploy static content to Pages
 
 on:
   push:
-    branches: [main]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -11,8 +11,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: true
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   deploy:
@@ -23,16 +23,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Inyectar token en config.js
-        run: sed -i "s|SKIN_TOKEN: \"\"|SKIN_TOKEN: \"${SKIN_TOKEN}\"|" public/config.js
+      - name: Inyectar SKIN_TOKEN en config.js
+        run: |
+          python3 -c "import os, pathlib; p = pathlib.Path('public/config.js'); p.write_text(p.read_text(encoding='utf-8').replace('SKIN_TOKEN: \"\"', 'SKIN_TOKEN: \"' + os.environ['SKIN_TOKEN'] + '\"'), encoding='utf-8')"
         env:
           SKIN_TOKEN: ${{ secrets.SKIN_TOKEN }}
-      - name: Configurar Pages
+      - name: Setup Pages
         uses: actions/configure-pages@v5
-      - name: Subir sitio (public/)
+      - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'public'
-      - name: Desplegar
+          path: "public"
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
