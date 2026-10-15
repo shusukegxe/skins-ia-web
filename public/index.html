@@ -142,11 +142,12 @@
     v.onpointerdown = e => { prevX = e.clientX; auto = false; try { v.setPointerCapture(e.pointerId); } catch {} };
     v.onpointermove = e => { if (prevX !== null) { ang += (e.clientX - prevX) * 0.012; prevX = e.clientX; } };
     v.onpointerup = v.onpointercancel = () => { prevX = null; };
-    const S = Math.floor(v.height / 40), CX = v.width / 2, CY = Math.round((v.height - 32 * S) / 2);
+    const S = Math.floor(v.height / 40), CX = v.width / 2, CY = Math.round(v.height / 2);
     (function cuadro() {
       if (auto) ang += 0.012;
       const sy = Math.sin(ang), cy = Math.cos(ang), st = Math.sin(0.42), ct = Math.cos(0.42);
       ctx.clearRect(0, 0, v.width, v.height);
+      ctx.imageSmoothingEnabled = false;
       const visibles = [];
       for (const c of CARAS) {
         let [nx, ny, nz] = c.n;
