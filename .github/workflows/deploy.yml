@@ -23,6 +23,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Inyectar token en config.js
+        run: sed -i "s|SKIN_TOKEN: \"\"|SKIN_TOKEN: \"${SKIN_TOKEN}\"|" public/config.js
+        env:
+          SKIN_TOKEN: ${{ secrets.SKIN_TOKEN }}
       - name: Configurar Pages
         uses: actions/configure-pages@v5
       - name: Subir sitio (public/)
