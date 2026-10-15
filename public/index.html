@@ -98,30 +98,96 @@
     } catch (e) { return false; }
   })();
 
-  function vista2D(urlSkin) {
-    const v = $('vista');
-    v.style.display = 'none';
-    let img = document.getElementById('vista2d');
-    if (!img) {
-      img = document.createElement('img');
-      img.id = 'vista2d';
-      img.style.cssText = 'width:100%;height:300px;object-fit:contain;image-rendering:pixelated;background:#101116;border:2px solid var(--borde);margin-bottom:12px';
-      v.parentNode.insertBefore(img, v);
-      ['btnCaminar', 'btnCorrer', 'btnGirar'].forEach(id => $(id).disabled = true);
+  // ---------- renderizador 3D por software (funciona sin WebGL) ----------
+  const CARAS = (() => {
+    const P = [
+      { caja: [-4,0,-4, 4,8,4],   uv: { pz:[8,8,8,8],  nz:[24,8,8,8],  px:[16,8,8,8],  nx:[0,8,8,8],  py:[8,0,8,8],  ny:[16,0,8,8] } },
+      { caja: [-4,8,-2, 4,20,2],  uv: { pz:[20,20,8,12], nz:[32,20,8,12], px:[28,20,4,12], nx:[16,20,4,12], py:[20,16,8,4], ny:[28,16,8,4] } },
+      { caja: [-8,8,-2, -4,20,2], uv: { pz:[44,20,4,12], nz:[52,20,4,12], px:[48,20,4,12], nx:[40,20,4,12], py:[44,16,4,4], ny:[48,16,4,4] } },
+      { caja: [4,8,-2, 8,20,2],   uv: { pz:[36,52,4,12], nz:[44,52,4,12], px:[40,52,4,12], nx:[32,52,4,12], py:[36,48,4,4], ny:[40,48,4,4] } },
+      { caja: [-4,20,-2, 0,32,2], uv: { pz:[4,20,4,12], nz:[12,20,4,12], px:[8,20,4,12], nx:[0,20,4,12], py:[4,16,4,4], ny:[8,16,4,4] } },
+      { caja: [0,20,-2, 4,32,2],  uv: { pz:[4,52,4,12], nz:[12,52,4,12], px:[8,52,4,12], nx:[0,52,4,12], py:[4,48,4,4], ny:[8,48,4,4] } },
+    ];
+    const caras = [];
+    for (const p of P) {
+      const [x0,y0,z0,x1,y1,z1] = p.caja;
+      const def = {
+        pz: { n:[0,0,1],  v:[[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]] },
+        nz: { n:[0,0,-1], v:[[x1,y0,z0],[x0,y0,z0],[x0,y1,z0],[x1,y1,z0]] },
+        px: { n:[1,0,0],  v:[[x1,y0,z1],[x1,y0,z0],[x1,y1,z0],[x1,y1,z1]] },
+        nx: { n:[-1,0,0], v:[[x0,y0,z0],[x0,y0,z1],[x0,y1,z1],[x0,y1,z0]] },
+        py: { n:[0,1,0],  v:[[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1]] },
+        ny: { n:[0,-1,0], v:[[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]] },
+      };
+      for (const k in def) caras.push({ n: def[k].n, v: def[k].v, uv: p.uv[k] });
     }
+    return caras;
+  })();
+
+  function renderizarSoftware(urlSkin) {
+    ['btnCaminar','btnCorrer','btnGirar'].forEach(id => $(id).disabled = true);
+    const v = $('vista'); v.style.display = '';
+    const ctx = v.getContext('2d');
+    if (!ctx) return;
+    v.width = 340; v.height = 430;
+    const img = new Image();
+    img.onload = () => girar(ctx, img);
     img.src = urlSkin;
     urlActual = urlSkin; $('btnDescargar').disabled = false;
   }
 
+  function girar(ctx, atlas) {
+    const v = ctx.canvas;
+    let ang = 0.6, auto = true, prevX = null;
+    v.onpointerdown = e => { prevX = e.clientX; auto = false; try { v.setPointerCapture(e.pointerId); } catch {} };
+    v.onpointermove = e => { if (prevX !== null) { ang += (e.clientX - prevX) * 0.012; prevX = e.clientX; } };
+    v.onpointerup = v.onpointercancel = () => { prevX = null; };
+    const S = Math.floor(v.height / 40), CX = v.width / 2, CY = Math.round((v.height - 32 * S) / 2);
+    (function cuadro() {
+      if (auto) ang += 0.012;
+      const sy = Math.sin(ang), cy = Math.cos(ang), st = Math.sin(0.42), ct = Math.cos(0.42);
+      ctx.clearRect(0, 0, v.width, v.height);
+      const visibles = [];
+      for (const c of CARAS) {
+        let [nx, ny, nz] = c.n;
+        const nx1 = nx * cy + nz * sy, nz1 = -nx * sy + nz * cy;
+        const nz2 = ny * st + nz1 * ct;
+        if (nz2 <= 0.02) continue;
+        const pts = c.v.map(([x, y, z]) => {
+          const rx = x * cy + z * sy, rz = -x * sy + z * cy;
+          const ry = (y - 16) * ct - rz * st;
+          const rz2 = (y - 16) * st + rz * ct;
+          return [CX + rx * S, CY + ry * S, rz2];
+        });
+        visibles.push({ pts, uv: c.uv, prof: (pts[0][2] + pts[1][2] + pts[2][2] + pts[3][2]) / 4, nz2 });
+      }
+      visibles.sort((a, b) => a.prof - b.prof);
+      for (const d of visibles) {
+        ctx.save();
+        ctx.transform(d.pts[1][0] - d.pts[0][0], d.pts[1][1] - d.pts[0][1],
+                      d.pts[3][0] - d.pts[0][0], d.pts[3][1] - d.pts[0][1],
+                      d.pts[0][0], d.pts[0][1]);
+        ctx.drawImage(atlas, d.uv[0], d.uv[1], d.uv[2], d.uv[3], 0, 0, 1, 1);
+        ctx.globalAlpha = (1 - d.nz2) * 0.22;
+        ctx.fillStyle = '#000';
+        ctx.fillRect(0, 0, 1, 1);
+        ctx.restore();
+      }
+      requestAnimationFrame(cuadro);
+    })();
+  }
+
   function montarVisor(urlSkin) {
-    if (sinWebGL) { vista2D(urlSkin); return; }
-    if (visor) { visor.loadSkin(urlSkin); }
-    else {
-      visor = new skinview3d.SkinViewer({ canvas: $('vista'), width: 320, height: 300, skin: urlSkin });
-      visor.zoom = 0.8; visor.autoRotate = true;
-      visor.loadAnimation(new skinview3d.WalkingAnimation());
-    }
-    urlActual = urlSkin; $('btnDescargar').disabled = false;
+    if (sinWebGL || typeof skinview3d === 'undefined') { renderizarSoftware(urlSkin); return; }
+    try {
+      if (visor) { visor.loadSkin(urlSkin); }
+      else {
+        visor = new skinview3d.SkinViewer({ canvas: $('vista'), width: 320, height: 300, skin: urlSkin });
+        visor.zoom = 0.8; visor.autoRotate = true;
+        visor.loadAnimation(new skinview3d.WalkingAnimation());
+      }
+      urlActual = urlSkin; $('btnDescargar').disabled = false;
+    } catch (e) { renderizarSoftware(urlSkin); }
   }
   $('btnCaminar').onclick = () => visor && visor.loadAnimation(new skinview3d.WalkingAnimation());
   $('btnCorrer').onclick = () => visor && visor.loadAnimation(new skinview3d.RunningAnimation());
