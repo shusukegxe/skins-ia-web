@@ -1,48 +1,32 @@
-# Skins IA ✨💗
+# Skins IA ✨
 
-Web para generar skins de Minecraft con IA (Gepo, corriendo en una RTX 5050 local)
-con copilot conversacional. Hecha con cariño.
+Web para generar skins de Minecraft con IA (Gepo corriendo en una RTX 5050 casera)
+con copilot conversacional. Alojada en GitHub Pages.
 
 ## Cómo funciona
 
 ```
-Navegador ──> Vercel (páginas estáticas + funciones /api)
-                    │  TUNNEL_URL (túnel playit.gg) + SKIN_TOKEN
-                    ▼
-             PC generador: servidor_skin.py (FastAPI + Gepo residente)
-                    ▼
-             RTX 5050 genera la skin 64×64 en ~20 s
+Navegador ──(GitHub Pages, este repo)──> tunel playit.gg ──> PC generador
+                                                            servidor_skin.py
+                                                            (FastAPI + Gepo, RTX 5050)
 ```
 
-El copilot NO es una API de pago: los mensajes del chat quedan en el buzón del PC
-generador (`cola/mensajes.json`) y una automatización local los responde
-(`cola/respuestas.json`), generando la skin pedida y dejando su PNG en `salidas_web/`.
+- `public/index.html` — la interfaz (chat del copilot + generador rápido + visor 3D)
+- `public/config.js` — `TUNNEL_URL` (URL del túnel) y `SKIN_TOKEN`
+- `cola/mensajes.json` y `respuestas.json` en la carpeta del servidor = buzón del copilot
 
-## Configuración
-
-Variables de entorno en Vercel (Project → Settings → Environment Variables):
-
-| Variable    | Valor                                        |
-|-------------|----------------------------------------------|
-| `TUNNEL_URL`| URL pública del túnel playit hacia `:8765`   |
-| `SKIN_TOKEN`| el mismo token que usa el PC generador       |
-
-En el PC generador (debe estar encendido para que la web funcione):
+## En el PC generador
 
 ```
 set HF_HOME=H:\IA-Modelos\hf-cache
 python servidor_skin.py
 ```
 
-El token se imprime en consola y se guarda en `token_actual.txt` (cópialo a Vercel).
-
-## Túnel playit
-
-En el agente de playit, crear un túnel HTTP/HTTPS hacia `http://localhost:8765`
-y poner la URL pública resultante en `TUNNEL_URL`.
+El token se guarda en `token_actual.txt` (copiarlo a `public/config.js` si cambia).
+El servidor acepta CORS solo desde github.io y localhost.
 
 ## Deploy
 
-1. Importar este repo en Vercel (framework: Other, no necesita build).
-2. Agregar las dos variables de entorno.
-3. Redeploy.
+Automático: cada push a `main` ejecuta `.github/workflows/deploy.yml` y publica
+`public/` en https://shusukegxe.github.io/skins-ia-web/
+(único requisito manual: Settings → Pages → Source: "GitHub Actions").
