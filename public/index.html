@@ -3,66 +3,83 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skins IA ✨</title>
+<title>Skins IA</title>
 <style>
-  :root { --fondo:#15161d; --tarjeta:#1e2029; --borde:#2e3140; --rosa:#ff7eb9; --texto:#f0f0f5; --gris:#9aa0b5; }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--fondo); color:var(--texto); font-family:system-ui, sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:14px; }
-  header { width:100%; max-width:960px; display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-  h1 { font-size:1.25rem; } h1 span { color:var(--rosa); }
-  #estado { font-size:.8rem; color:var(--gris); } #estado b { color:#7ddb8a; }
-  main { width:100%; max-width:960px; display:grid; grid-template-columns:1fr 340px; gap:14px; }
-  @media (max-width:760px){ main { grid-template-columns:1fr; } }
-  section { background:var(--tarjeta); border:1px solid var(--borde); border-radius:14px; padding:14px; display:flex; flex-direction:column; }
-  h2 { font-size:1rem; margin-bottom:8px; }
-  #chat { height:340px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; margin-bottom:10px; }
-  .msg { max-width:85%; padding:8px 12px; border-radius:12px; font-size:.9rem; white-space:pre-wrap; word-break:break-word; }
-  .msg.yo { align-self:flex-end; background:var(--rosa); color:#2a0a18; border-bottom-right-radius:4px; }
-  .msg.copilot { align-self:flex-start; background:#2a2d3a; border-bottom-left-radius:4px; }
-  .msg img.skinchat { max-width:120px; image-rendering:pixelated; border-radius:8px; margin-top:6px; display:block; cursor:pointer; }
-  #filaChat { display:flex; gap:8px; }
-  input, textarea, select, button { font:inherit; background:#14151c; color:var(--texto); border:1px solid var(--borde); border-radius:10px; padding:9px 12px; }
-  input:focus, textarea:focus { outline:1px solid var(--rosa); }
-  #entradaChat { flex:1; }
-  button { cursor:pointer; } button:hover { border-color:var(--rosa); }
-  .primario { background:var(--rosa); color:#2a0a18; border:none; font-weight:600; }
-  #vista { width:100%; height:300px; background:#101118; border-radius:12px; margin-bottom:10px; }
-  .fila { display:flex; gap:8px; margin-bottom:8px; } .fila > * { flex:1; }
-  label { font-size:.78rem; color:var(--gris); display:block; margin:6px 0 3px; }
-  #nota { font-size:.75rem; color:var(--gris); margin-top:8px; }
+  @import url('https://cdn.jsdelivr.net/npm/@south-paw/typeface-minecraft@1.0.0/index.css');
+  :root {
+    --fondo: #17181c; --panel: #1e2025; --borde: #33363d; --borde-hi: #4a4e58;
+    --verde: #7ac74f; --verde-osc: #2a4d1d; --texto: #e8e8e8; --gris: #9aa0a8;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--fondo); color: var(--texto);
+    font-family: 'Minecraft', 'Segoe UI', monospace;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    padding: 20px 14px; font-size: 15px; line-height: 1.5;
+  }
+  header { width: 100%; max-width: 980px; display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+  h1 { font-size: 1.4rem; letter-spacing: 1px; }
+  h1 em { color: var(--verde); font-style: normal; }
+  #estado { font-size: .75rem; color: var(--gris); }
+  #estado::before { content: ""; display: inline-block; width: 8px; height: 8px; background: var(--gris); margin-right: 6px; }
+  #estado.ok { color: var(--verde); } #estado.ok::before { background: var(--verde); }
+  main { width: 100%; max-width: 980px; display: grid; grid-template-columns: 1fr 360px; gap: 16px; }
+  @media (max-width: 780px) { main { grid-template-columns: 1fr; } }
+  section { background: var(--panel); border: 2px solid var(--borde); padding: 16px; display: flex; flex-direction: column; }
+  h2 { font-size: .95rem; color: var(--verde); margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase; }
+  #chat { height: 340px; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; padding-right: 4px; }
+  .msg { max-width: 85%; padding: 8px 12px; font-size: .85rem; white-space: pre-wrap; word-break: break-word; }
+  .msg.yo { align-self: flex-end; background: var(--verde-osc); border: 2px solid var(--verde); color: #d9f2c8; }
+  .msg.copilot { align-self: flex-start; background: #26282f; border: 2px solid var(--borde); }
+  .msg img.skinchat { width: 110px; image-rendering: pixelated; margin-top: 8px; display: block; cursor: pointer; border: 2px solid var(--borde-hi); }
+  #filaChat { display: flex; gap: 8px; }
+  input, textarea, select, button {
+    font: inherit; font-size: .85rem; background: #14151a; color: var(--texto);
+    border: 2px solid var(--borde); padding: 9px 12px; border-radius: 0;
+  }
+  input:focus, textarea:focus { outline: 2px solid var(--verde); outline-offset: -2px; }
+  #entradaChat { flex: 1; }
+  button { cursor: pointer; }
+  button:hover { border-color: var(--verde); color: var(--verde); }
+  .primario { background: var(--verde); color: #14210c; border-color: var(--verde); font-weight: bold; }
+  .primario:hover { background: #8edb61; color: #14210c; }
+  #vista { width: 100%; height: 300px; background: #101116; border: 2px solid var(--borde); margin-bottom: 12px; }
+  .fila { display: flex; gap: 8px; margin-bottom: 10px; } .fila > * { flex: 1; }
+  label { font-size: .72rem; color: var(--gris); display: block; margin: 4px 0 4px; text-transform: uppercase; letter-spacing: 1px; }
+  #nota { font-size: .7rem; color: var(--gris); margin-top: 10px; border-top: 2px solid var(--borde); padding-top: 8px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>Skins <span>IA</span> ✨</h1>
-  <div id="estado">● conectando…</div>
+  <h1>Skins <em>IA</em></h1>
+  <div id="estado">conectando</div>
 </header>
 <main>
   <section>
-    <h2>Copilot 💬 — pide lo que quieras</h2>
+    <h2>Copilot</h2>
     <div id="chat"></div>
     <div id="filaChat">
       <input id="entradaChat" placeholder="ej: una skin de axolotl con gorra morada" autocomplete="off">
       <button class="primario" id="btnEnviar">Enviar</button>
     </div>
-    <p id="nota">El copilot tarda unos minutos en pensar; aunque cierres la página tu mensaje queda guardado y la respuesta te espera aquí cuando vuelvas 😉</p>
+    <p id="nota">El copilot responde con kaomojis y tu skin. Aunque cierres la pagina, tu mensaje queda guardado y la respuesta te espera aqui al volver.</p>
   </section>
   <section>
-    <h2>Generador rápido ⚡</h2>
+    <h2>Generador rapido</h2>
     <canvas id="vista"></canvas>
     <div class="fila">
-      <button id="btnCaminar">🚶</button><button id="btnCorrer">🏃</button><button id="btnGirar">🔄</button>
+      <button id="btnCaminar">Caminar</button><button id="btnCorrer">Correr</button><button id="btnGirar">Girar</button>
     </div>
-    <label>Describe tu skin (en inglés va mejor)</label>
+    <label>Describe tu skin (en ingles va mejor)</label>
     <textarea id="prompt" rows="3" placeholder="Minecraft skin, steve model, ..."></textarea>
-    <div class="fila" style="margin-top:8px">
+    <div class="fila" style="margin-top:10px">
       <select id="modelo"><option value="steve">Steve (brazos gruesos)</option><option value="alex">Alex (brazos delgados)</option></select>
       <button class="primario" id="btnGenerar">Generar</button>
     </div>
     <div class="fila">
-      <button id="btnDescargar" disabled>⬇ Descargar skin</button>
+      <button id="btnDescargar" disabled>Descargar skin</button>
     </div>
-    <p id="nota">Las skins se generan con IA en una PC casera con GPU — si no responde, el generador está apagado.</p>
+    <p id="nota">Las skins se generan con IA en una GPU casera. Si no responde, el generador esta apagado.</p>
   </section>
 </main>
 <script src="config.js"></script>
@@ -87,28 +104,26 @@
   $('btnGirar').onclick = () => visor && visor.loadAnimation(new skinview3d.FlyingAnimation());
   $('btnDescargar').onclick = () => { if (!urlActual) return; const a = document.createElement('a'); a.href = urlActual; a.download = 'skin_ia.png'; a.click(); };
 
-  // estado del servidor (directo al PC generador via tunel)
-  if (!API) { $('estado').textContent = '● sin configurar (falta TUNNEL_URL en config.js)'; }
+  if (!API) { $('estado').textContent = 'sin configurar (falta TUNNEL_URL)'; }
   else fetch(API + '/salud').then(r => r.json()).then(d => {
-    $('estado').innerHTML = d.listo ? '● <b>listo para generar</b>' : '● servidor cargando…';
-  }).catch(() => { $('estado').textContent = '● PC generadora apagada'; });
+    $('estado').textContent = d.listo ? 'listo para generar' : 'servidor cargando';
+    if (d.listo) $('estado').classList.add('ok');
+  }).catch(() => { $('estado').textContent = 'generador apagado'; });
 
-  // generador rapido
   $('btnGenerar').onclick = async () => {
     const prompt = $('prompt').value.trim();
     if (!prompt || !API) return;
-    $('btnGenerar').disabled = true; $('btnGenerar').textContent = 'Generando…';
+    $('btnGenerar').disabled = true; $('btnGenerar').textContent = 'Generando...';
     try {
       const r = await fetch(API + '/generar', { method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-Token': TOKEN },
         body: JSON.stringify({ prompt, modelo: $('modelo').value }) });
       if (!r.ok) throw 0;
       montarVisor(URL.createObjectURL(await r.blob()));
-    } catch { alert('No se pudo generar. ¿El PC generador está encendido?'); }
+    } catch { alert('No se pudo generar. El generador esta encendido?'); }
     $('btnGenerar').disabled = false; $('btnGenerar').textContent = 'Generar';
   };
 
-  // chat con el copilot
   function burbuja(clase, texto) {
     const d = document.createElement('div'); d.className = 'msg ' + clase;
     d.textContent = texto; $('chat').appendChild(d); $('chat').scrollTop = 1e9; return d;
@@ -117,22 +132,21 @@
     const texto = $('entradaChat').value.trim(); if (!texto || !API) return;
     $('entradaChat').value = '';
     burbuja('yo', texto);
-    const esperando = burbuja('copilot escribiendo', '✎ enviando al copilot…');
+    const esperando = burbuja('copilot', '...');
     try {
       const r = await fetch(API + '/mensaje', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ texto }) });
       const { id } = await r.json();
       if (!id) throw 0;
-      esperando.textContent = '💭 el copilot está pensando…';
       poll(id, esperando, 0);
-    } catch { esperando.textContent = '⚠ No llegué al PC generador (¿apagado?).'; }
+    } catch { esperando.textContent = 'x_x generador no disponible'; }
   }
   async function poll(id, burbujaEspera, intentos) {
-    if (intentos > 150) { burbujaEspera.textContent = '⌛ Tardó demasiado. Pregúntale "¿está lista?" luego.'; return; }
+    if (intentos > 450) { burbujaEspera.textContent = 'zzz tardo demasiado, pregunta luego'; return; }
     try {
       const r = await fetch(API + '/respuesta/' + id);
       const d = await r.json();
       if (d.lista) {
-        burbujaEspera.className = 'msg copilot'; burbujaEspera.textContent = d.respuesta ?? '(respuesta vacía)';
+        burbujaEspera.textContent = d.respuesta ?? '...';
         if (d.skin) { const img = document.createElement('img'); img.className = 'skinchat';
           img.src = API + '/skins/' + encodeURIComponent(d.skin);
           img.onclick = () => montarVisor(img.src);
@@ -140,7 +154,7 @@
         return;
       }
     } catch {}
-    setTimeout(() => poll(id, burbujaEspera, intentos + 1), 4000);
+    setTimeout(() => poll(id, burbujaEspera, intentos + 1), 3000);
   }
   $('btnEnviar').onclick = enviarChat;
   $('entradaChat').addEventListener('keydown', e => { if (e.key === 'Enter') enviarChat(); });
