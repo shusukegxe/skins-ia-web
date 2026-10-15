@@ -5,7 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Skins IA</title>
 <style>
-  @import url('https://cdn.jsdelivr.net/npm/@south-paw/typeface-minecraft@1.0.0/index.css');
+  @font-face {
+    font-family: 'Minecraft';
+    src: url('fonts/Monocraft.woff2') format('woff2');
+    font-display: swap;
+  }
   :root {
     --fondo: #17181c; --panel: #1e2025; --borde: #33363d; --borde-hi: #4a4e58;
     --verde: #7ac74f; --verde-osc: #2a4d1d; --texto: #e8e8e8; --gris: #9aa0a8;
@@ -88,9 +92,29 @@
   const $ = id => document.getElementById(id);
   const API = (window.CONFIG && window.CONFIG.TUNNEL_URL || '').replace(/\/$/, '');
   const TOKEN = window.CONFIG ? window.CONFIG.SKIN_TOKEN : '';
-  let visor, urlActual = null;
+  let visor, urlActual = null, sinWebGL = !(() => {
+    try { const c = document.createElement('canvas');
+      return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl')));
+    } catch (e) { return false; }
+  })();
+
+  function vista2D(urlSkin) {
+    const v = $('vista');
+    v.style.display = 'none';
+    let img = document.getElementById('vista2d');
+    if (!img) {
+      img = document.createElement('img');
+      img.id = 'vista2d';
+      img.style.cssText = 'width:100%;height:300px;object-fit:contain;image-rendering:pixelated;background:#101116;border:2px solid var(--borde);margin-bottom:12px';
+      v.parentNode.insertBefore(img, v);
+      ['btnCaminar', 'btnCorrer', 'btnGirar'].forEach(id => $(id).disabled = true);
+    }
+    img.src = urlSkin;
+    urlActual = urlSkin; $('btnDescargar').disabled = false;
+  }
 
   function montarVisor(urlSkin) {
+    if (sinWebGL) { vista2D(urlSkin); return; }
     if (visor) { visor.loadSkin(urlSkin); }
     else {
       visor = new skinview3d.SkinViewer({ canvas: $('vista'), width: 320, height: 300, skin: urlSkin });
