@@ -100,9 +100,10 @@
   const $ = id => document.getElementById(id);
   // Si la pagina la sirve el propio generador (tunel) -> mismo origen, sin CORS.
   // Si viene de GitHub Pages -> usa el tunel configurado en config.js.
-  const API = location.origin.includes('github.io')
-    ? ((window.CONFIG && window.CONFIG.TUNNEL_URL) || '').replace(/\/$/, '')
-    : '';
+  const enPages = location.origin.includes('github.io');
+  // Servida por el tunel -> API='' (URLs relativas, mismo origen). En Pages -> el tunel configurado.
+  const API = enPages ? ((window.CONFIG && window.CONFIG.TUNNEL_URL) || '').replace(/\/$/, '') : '';
+  const MALCONFIG = enPages && !API;
   const TOKEN = window.CONFIG ? window.CONFIG.SKIN_TOKEN : '';
 
   async function conReintentos(url, opciones, intentos) {
@@ -235,7 +236,7 @@
   $('btnGirar').onclick = () => visor && visor.loadAnimation(new skinview3d.FlyingAnimation());
   $('btnDescargar').onclick = () => { if (!urlActual) return; const a = document.createElement('a'); a.href = urlActual; a.download = 'skin_ia.png'; a.click(); };
 
-  if (!API) { $('estado').textContent = 'sin configurar (falta TUNNEL_URL)'; }
+  if (MALCONFIG) { $('estado').textContent = 'sin configurar (falta TUNNEL_URL en config.js)'; }
   else conReintentos(API + '/salud').then(r => r.json()).then(d => {
     $('estado').textContent = d.listo ? 'listo para generar' : 'servidor cargando';
     if (d.listo) $('estado').classList.add('ok');
@@ -243,7 +244,7 @@
 
   $('btnGenerar').onclick = async () => {
     const prompt = $('prompt').value.trim();
-    if (!prompt || !API) return;
+    if (!prompt || MALCONFIG) return;
     $('btnGenerar').disabled = true; $('btnGenerar').textContent = 'Generando...';
     try {
       const r = await fetch(API + '/generar', { method: 'POST',
@@ -260,7 +261,7 @@
     d.textContent = texto; $('chat').appendChild(d); $('chat').scrollTop = 1e9; return d;
   }
   async function enviarChat() {
-    const texto = $('entradaChat').value.trim(); if (!texto || !API) return;
+    const texto = $('entradaChat').value.trim(); if (!texto || MALCONFIG) return;
     $('entradaChat').value = '';
     burbuja('yo', texto);
     const esperando = burbuja('copilot', '...');
