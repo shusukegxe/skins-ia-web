@@ -305,7 +305,7 @@
     $('btnBlock').disabled = true; $('btnBlock').textContent = 'Subiendo...';
     try {
       const fd = new FormData(); fd.append('archivo', f);
-      const r = await conReintentos(API + '/bloque', { method: 'POST', body: fd });
+      const r = await conReintentos(API + '/bloque', { method: 'POST', headers: { 'X-Token': TOKEN }, body: fd });
       const { id } = await r.json();
       if (!id) throw 0;
       burbuja('yo', '[BLOCK] ' + f.name);
