@@ -66,7 +66,7 @@
       <input id="entradaChat" placeholder="ej: una skin de axolotl con gorra morada" autocomplete="off">
       <button class="primario" id="btnEnviar">Enviar</button>
     </div>
-    <p id="nota">El copilot responde con kaomojis y tu skin. Aunque cierres la pagina, tu mensaje queda guardado y la respuesta te espera aqui al volver.</p>
+    <p id="nota">El copilot responde con frases cortas y kaomojis, y te deja la skin para ver en 3D. Aunque cierres la pagina, tu mensaje queda guardado y la respuesta te espera aqui al volver.</p>
   </section>
   <section>
     <h2>Generador rapido</h2>
@@ -84,6 +84,14 @@
       <button id="btnDescargar" disabled>Descargar skin</button>
     </div>
     <p id="nota">Las skins se generan con IA en una GPU casera. Si no responde, el generador esta apagado.</p>
+  </section>
+  <section style="grid-column: 1 / -1;">
+    <h2>Modo alta calidad — BLOCK</h2>
+    <div class="fila">
+      <input type="file" id="archivoBlock" accept="image/png, image/jpeg, image/webp">
+      <button class="primario" id="btnBlock">Generar con BLOCK</button>
+    </div>
+    <p id="nota">Sube una vista 3D de tu personaje (frente y espalda, como en los editores de skins) y BLOCK la convierte en skin con maximo detalle. Tarda unos 5 minutos y la respuesta llega al chat.</p>
   </section>
 </main>
 <script src="config.js"></script>
@@ -288,6 +296,23 @@
     } catch {}
     setTimeout(() => poll(id, burbujaEspera, intentos + 1), 3000);
   }
+
+  // modo alta calidad BLOCK
+  $('btnBlock').onclick = async () => {
+    const f = $('archivoBlock').files[0];
+    if (!f || MALCONFIG) return;
+    $('btnBlock').disabled = true; $('btnBlock').textContent = 'Subiendo...';
+    try {
+      const fd = new FormData(); fd.append('archivo', f);
+      const r = await conReintentos(API + '/bloque', { method: 'POST', body: fd });
+      const { id } = await r.json();
+      if (!id) throw 0;
+      burbuja('yo', '[BLOCK] ' + f.name);
+      poll(id, burbuja('copilot', 'modo BLOCK en cola, ~5 min...'), 0);
+    } catch { alert('No se pudo subir la imagen.'); }
+    $('btnBlock').disabled = false; $('btnBlock').textContent = 'Generar con BLOCK';
+  };
+
   $('btnEnviar').onclick = enviarChat;
   $('entradaChat').addEventListener('keydown', e => { if (e.key === 'Enter') enviarChat(); });
 </script>
